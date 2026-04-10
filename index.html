@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Cucina — Ristorante Italiano</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,600&family=Lato:wght@300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─────────────────────────────────────────
+       RESET & BASE
+    ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:   #F5EFE0;
+      --warm:    #EDE3CE;
+      --dark:    #1C1208;
+      --olive:   #6B6B3A;
+      --rust:    #9B3A1A;
+      --gold:    #C8952A;
+      --muted:   rgba(28,18,8,0.48);
+      --border:  rgba(28,18,8,0.10);
+      --font-d:  'Playfair Display', Georgia, serif;
+      --font-c:  'Cormorant Garamond', Georgia, serif;
+      --font-b:  'Lato', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-b);
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: multiply;
+    }
+
+    /* ─────────────────────────────────────────
+       ① VIDEO HERO — fixed, fades on scroll
+    ───────────────────────────────────────── */
+    .video-hero {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100vh;
+      z-index: 1;
+      overflow: hidden;
+      /* will be faded via JS */
+      transition: opacity 0.05s linear;
+    }
+
+    /* Cinematic dark vignette */
+    .video-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at center, transparent 30%, rgba(10,6,2,0.65) 100%),
+        linear-gradient(to bottom, rgba(10,6,2,0.30) 0%, transparent 30%, transparent 60%, rgba(10,6,2,0.70) 100%);
+      z-index: 2;
+    }
+
+    .video-hero video {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 100%; min-height: 100%;
+      width: auto; height: auto;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    /* Fallback gradient if video doesn't load */
+    .video-fallback {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        linear-gradient(160deg, #2a1a08 0%, #1c1208 40%, #3a1a0a 70%, #1c1208 100%);
+    }
+
+    /* Animated SVG pasta/kitchen illustration as video stand-in */
+    .hero-illustration {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Hero text overlay */
+    .video-hero-content {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-b);
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.30em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 24px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 1s 0.6s ease forwards;
+    }
+
+    .hero-name {
+      font-family: var(--font-d);
+      font-size: clamp(68px, 12vw, 148px);
+      font-weight: 400;
+      color: white;
+      letter-spacing: -0.02em;
+      line-height: 0.88;
+      margin-bottom: 12px;
+      opacity: 0;
+      transform: translateY(18px);
+      animation: fadeUp 1.1s 0.9s ease forwards;
+    }
+
+    .hero-name em {
+      font-style: italic;
+      font-weight: 400;
+      color: #E8C87A;
+    }
+
+    .hero-sub {
+      font-family: var(--font-c);
+      font-size: clamp(18px, 2.5vw, 28px);
+      font-weight: 300;
+      font-style: italic;
+      color: rgba(255,255,255,0.72);
+      letter-spacing: 0.08em;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 1s 1.2s ease forwards;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      opacity: 0;
+      animation: fadeUp 1s 1.5s ease forwards;
+    }
+
+    .btn-gold {
+      padding: 15px 42px;
+      background: transparent;
+      border: 1px solid rgba(200,149,42,0.8);
+      color: #E8C87A;
+      font-family: var(--font-b);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+    .btn-gold:hover {
+      background: rgba(200,149,42,0.15);
+      border-color: #E8C87A;
+    }
+
+    .btn-white {
+      padding: 15px 42px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.30);
+      color: white;
+      font-family: var(--font-b);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-block;
+      backdrop-filter: blur(8px);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .btn-white:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.5); }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeUp 1s 2s ease forwards;
+    }
+    .scroll-hint-text {
+      font-family: var(--font-b);
+      font-size: 9px;
+      font-weight: 300;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.40);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.45), transparent);
+      animation: scrollPulse 2s 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(1.15); }
+    }
+
+    /* ─────────────────────────────────────────
+       SPACER — pushes content below video
+    ───────────────────────────────────────── */
+    .video-spacer { height: 100vh; position: relative; z-index: 2; }
+
+    /* ─────────────────────────────────────────
+       MAIN CONTENT — sits above the fixed video
+    ───────────────────────────────────────── */
+    .site-content {
+      position: relative;
+      z-index: 10;
+      background: var(--cream);
+    }
+
+    /* ─────────────────────────────────────────
+       NAVBAR
+    ───────────────────────────────────────── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 52px;
+      transition: background 0.5s ease, padding 0.4s ease, box-shadow 0.4s;
+    }
+
+    .navbar.scrolled {
+      background: rgba(245,239,224,0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 14px 52px;
+      box-shadow: 0 1px 0 var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--font-d);
+      font-size: 26px;
+      font-weight: 500;
+      color: white;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      transition: color 0.4s;
+    }
+    .navbar.scrolled .nav-logo { color: var(--dark); }
+    .nav-logo em { font-style: italic; color: #E8C87A; transition: color 0.4s; }
+    .navbar.scrolled .nav-logo em { color: var(--gold); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .nav-links a {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: rgba(255,255,255,0.72);
+      transition: color 0.3s, opacity 0.3s;
+    }
+    .navbar.scrolled .nav-links a { color: var(--muted); }
+    .nav-links a:hover { color: white; opacity: 1; }
+    .navbar.scrolled .nav-links a:hover { color: var(--dark); }
+
+    .nav-reserve {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #E8C87A;
+      border: 1px solid rgba(200,149,42,0.5);
+      padding: 10px 24px;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+    .nav-reserve:hover { background: rgba(200,149,42,0.12); }
+    .navbar.scrolled .nav-reserve { color: var(--gold); border-color: rgba(200,149,42,0.4); }
+    .navbar.scrolled .nav-reserve:hover { background: rgba(200,149,42,0.08); }
+
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 24px;
+      height: 1.5px;
+      background: white;
+      transition: background 0.4s;
+    }
+    .navbar.scrolled .nav-hamburger span { background: var(--dark); }
+
+    /* ─────────────────────────────────────────
+       SECTION SHARED STYLES
+    ───────────────────────────────────────── */
+    section { overflow: hidden; }
+
+    .section-eyebrow {
+      font-family: var(--font-b);
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.30em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-eyebrow::before {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.7;
+    }
+
+    /* ─────────────────────────────────────────
+       ② BENVENUTI — intro section
+    ───────────────────────────────────────── */
+    .benvenuti {
+      padding: 120px 80px 100px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      background: var(--cream);
+      position: relative;
+    }
+
+    .benvenuti::before {
+      content: 'LA CUCINA';
+      position: absolute;
+      font-family: var(--font-d);
+      font-size: 200px;
+      font-weight: 700;
+      color: rgba(28,18,8,0.028);
+      letter-spacing: -0.02em;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .benvenuti-text { position: relative; z-index: 1; }
+
+    .benvenuti-title {
+      font-family: var(--font-d);
+      font-size: clamp(38px, 4.5vw, 62px);
+      font-weight: 400;
+      line-height: 1.12;
+      margin-bottom: 28px;
+      letter-spacing: -0.01em;
+    }
+    .benvenuti-title em { font-style: italic; color: var(--rust); }
+
+    .benvenuti-body {
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 2;
+      color: var(--muted);
+      margin-bottom: 36px;
+      max-width: 420px;
+    }
+
+    .benvenuti-sig {
+      font-family: var(--font-c);
+      font-size: 28px;
+      font-style: italic;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+
+    .benvenuti-right {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Illustrated panels instead of photos */
+    .illus-panel {
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+    .illus-panel:first-child { grid-column: span 2; height: 220px; }
+    .illus-panel:not(:first-child) { height: 150px; }
+
+    .illus-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .illus-caption {
+      position: absolute;
+      bottom: 12px; left: 16px;
+      font-family: var(--font-c);
+      font-size: 13px;
+      font-style: italic;
+      color: rgba(255,255,255,0.80);
+      letter-spacing: 0.06em;
+      z-index: 2;
+    }
+
+    /* ─────────────────────────────────────────
+       ③ SPECIALITÀ — menu section
+    ───────────────────────────────────────── */
+    .specialita {
+      padding: 100px 80px;
+      background: #1C1208;
+      color: white;
+      position: relative;
+    }
+
+    .specialita::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,149,42,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,149,42,0.03) 1px, transparent 1px);
+      background-size: 72px 72px;
+      pointer-events: none;
+    }
+
+    .specialita-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .specialita-title {
+      font-family: var(--font-d);
+      font-size: clamp(52px, 8vw, 108px);
+      font-weight: 400;
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      color: white;
+    }
+    .specialita-title em { font-style: italic; color: #C8952A; }
+
+    .menu-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 44px;
+      position: relative;
+      z-index: 1;
+    }
+    .menu-tab {
+      padding: 12px 30px;
+      font-family: var(--font-b);
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: rgba(255,255,255,0.35);
+      border-bottom: 1.5px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.25s, border-color 0.25s;
+    }
+    .menu-tab.active { color: #C8952A; border-bottom-color: #C8952A; }
+    .menu-tab:first-child { padding-left: 0; }
+
+    .menu-grid { display: none; position: relative; z-index: 1; }
+    .menu-grid.active { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+
+    .menu-item {
+      padding: 32px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+      position: relative;
+    }
+    .menu-item:nth-child(odd) { padding-right: 64px; }
+    .menu-item:nth-child(even) { padding-left: 64px; border-left: 1px solid rgba(255,255,255,0.06); }
+    .menu-item::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--gold);
+      transition: width 0.4s ease;
+    }
+    .menu-item:hover::after { width: 100%; }
+
+    .menu-item-name {
+      font-family: var(--font-d);
+      font-size: 22px;
+      font-weight: 400;
+      color: white;
+      margin-bottom: 6px;
+      letter-spacing: 0.01em;
+    }
+    .menu-item-name em { font-style: italic; }
+
+    .menu-item-desc {
+      font-size: 12px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.42);
+      line-height: 1.75;
+      letter-spacing: 0.02em;
+    }
+
+    .menu-item-badge {
+      font-size: 8px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: 1px solid rgba(200,149,42,0.38);
+      color: #C8952A;
+      padding: 3px 9px;
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+    .menu-item-price {
+      font-family: var(--font-c);
+      font-size: 26px;
+      font-style: italic;
+      color: #C8952A;
+      white-space: nowrap;
+      padding-top: 2px;
+      letter-spacing: 0.02em;
+    }
+
+    /* ─────────────────────────────────────────
+       ④ FILOSOFIA — philosophy strip
+    ───────────────────────────────────────── */
+    .filosofia {
+      padding: 100px 80px;
+      background: var(--warm);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      position: relative;
+    }
+
+    .filosofia::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 80px; right: 80px;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .filo-cell {
+      padding: 0 52px 0 0;
+      border-right: 1px solid var(--border);
+    }
+    .filo-cell:last-child { border-right: none; padding-right: 0; padding-left: 52px; }
+    .filo-cell:nth-child(2) { padding-left: 52px; }
+
+    .filo-number {
+      font-family: var(--font-d);
+      font-size: 72px;
+      font-weight: 400;
+      font-style: italic;
+      color: rgba(200,149,42,0.18);
+      line-height: 1;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .filo-title {
+      font-family: var(--font-d);
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: 14px;
+      color: var(--dark);
+      letter-spacing: 0.01em;
+    }
+    .filo-title em { font-style: italic; }
+
+    .filo-body {
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.95;
+      color: var(--muted);
+    }
+
+    /* ─────────────────────────────────────────
+       ⑤ VINI — wine section
+    ───────────────────────────────────────── */
+    .vini {
+      padding: 100px 80px;
+      background: var(--cream);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 100px;
+      align-items: center;
+    }
+
+    .vini-text { order: 2; }
+
+    .vini-title {
+      font-family: var(--font-d);
+      font-size: clamp(36px, 4vw, 56px);
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -0.01em;
+    }
+    .vini-title em { font-style: italic; color: var(--rust); }
+
+    .vini-body {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 2;
+      color: var(--muted);
+      margin-bottom: 36px;
+    }
+
+    .vini-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .vino-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 16px;
+    }
+
+    .vino-name {
+      font-family: var(--font-d);
+      font-size: 18px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--dark);
+    }
+
+    .vino-region {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      flex: 1;
+      padding-left: 12px;
+    }
+
+    .vino-price {
+      font-family: var(--font-c);
+      font-size: 20px;
+      font-style: italic;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+
+    .vini-visual { order: 1; position: relative; height: 520px; }
+
+    .wine-illustration {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    /* ─────────────────────────────────────────
+       ⑥ RESERVATION
+    ───────────────────────────────────────── */
+    .reservazione {
+      padding: 110px 80px;
+      background: #1C1208;
+      color: white;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 100px;
+      align-items: start;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reservazione::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,149,42,0.08);
+      top: -200px; right: -200px;
+    }
+    .reservazione::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,149,42,0.05);
+      top: -100px; right: -100px;
+    }
+
+    .reserv-left { position: relative; z-index: 1; }
+
+    .reserv-title {
+      font-family: var(--font-d);
+      font-size: clamp(38px, 5vw, 68px);
+      font-weight: 400;
+      line-height: 1.05;
+      margin-bottom: 24px;
+      letter-spacing: -0.01em;
+    }
+    .reserv-title em { font-style: italic; color: #C8952A; }
+
+    .reserv-body {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 2;
+      color: rgba(255,255,255,0.52);
+      margin-bottom: 44px;
+    }
+
+    .contact-list {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .contact-item {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .contact-icon {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(200,149,42,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #C8952A;
+      font-size: 14px;
+    }
+
+    .contact-label {
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 4px;
+    }
+
+    .contact-value {
+      font-family: var(--font-d);
+      font-size: 17px;
+      font-weight: 400;
+      font-style: italic;
+      color: white;
+    }
+
+    .reserv-form { position: relative; z-index: 1; }
+
+    .form-title {
+      font-family: var(--font-d);
+      font-size: 24px;
+      font-weight: 400;
+      font-style: italic;
+      color: white;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+    .form-row .form-group { margin-bottom: 0; }
+
+    .form-label {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .form-input, .form-select, .form-textarea {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: white;
+      font-family: var(--font-b);
+      font-size: 14px;
+      font-weight: 300;
+      padding: 13px 16px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: rgba(200,149,42,0.5);
+      background: rgba(200,149,42,0.04);
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: rgba(255,255,255,0.25); }
+    .form-select option { background: #1c1208; color: white; }
+    .form-textarea { resize: vertical; min-height: 80px; }
+
+    .btn-reserv {
+      width: 100%;
+      padding: 17px;
+      background: transparent;
+      border: 1px solid rgba(200,149,42,0.7);
+      color: #C8952A;
+      font-family: var(--font-b);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+    .btn-reserv:hover {
+      background: rgba(200,149,42,0.12);
+      border-color: #C8952A;
+      color: #E8C87A;
+    }
+
+    /* ─────────────────────────────────────────
+       ⑦ FOOTER
+    ───────────────────────────────────────── */
+    footer {
+      background: #0E0904;
+      color: white;
+      padding: 64px 80px 36px;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 60px;
+      padding-bottom: 52px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 32px;
+    }
+
+    .footer-brand-name {
+      font-family: var(--font-d);
+      font-size: 38px;
+      font-weight: 400;
+      font-style: italic;
+      color: white;
+      margin-bottom: 16px;
+      letter-spacing: 0.02em;
+    }
+    .footer-brand-name em { color: #C8952A; }
+
+    .footer-tagline {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.40);
+      line-height: 1.85;
+      max-width: 260px;
+    }
+
+    .footer-col-title {
+      font-family: var(--font-b);
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #C8952A;
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,0.8); }
+
+    .footer-hours p {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+      line-height: 2;
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.06em;
+    }
+
+    .footer-decor {
+      font-family: var(--font-d);
+      font-size: 11px;
+      font-style: italic;
+      color: rgba(200,149,42,0.4);
+      letter-spacing: 0.1em;
+    }
+
+    /* ─────────────────────────────────────────
+       ANIMATIONS
+    ───────────────────────────────────────── */
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─────────────────────────────────────────
+       MOBILE NAV OVERLAY
+    ───────────────────────────────────────── */
+    .mobile-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(28,18,8,0.98);
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    .mobile-menu.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .mobile-menu a {
+      font-family: var(--font-d);
+      font-size: 40px;
+      font-style: italic;
+      color: white;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+    .mobile-menu a:hover { color: #C8952A; }
+    .mobile-close {
+      position: absolute;
+      top: 22px; right: 28px;
+      font-size: 28px;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      background: none;
+      border: none;
+      line-height: 1;
+    }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .benvenuti { padding: 80px 48px; gap: 52px; }
+      .specialita, .filosofia, .vini, .reservazione, footer { padding-left: 48px; padding-right: 48px; }
+      .menu-item:nth-child(odd) { padding-right: 40px; }
+      .menu-item:nth-child(even) { padding-left: 40px; }
+    }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 18px 24px; }
+      .navbar.scrolled { padding: 12px 24px; }
+      .nav-links, .nav-reserve { display: none; }
+      .nav-hamburger { display: flex; }
+
+      .benvenuti { grid-template-columns: 1fr; gap: 40px; padding: 72px 24px 64px; }
+      .benvenuti::before { font-size: 80px; }
+      .benvenuti-right { display: none; }
+
+      .specialita { padding: 72px 24px; }
+      .specialita-header { grid-template-columns: 1fr; gap: 16px; }
+      .menu-grid.active { grid-template-columns: 1fr; }
+      .menu-item:nth-child(even) { padding-left: 0; border-left: none; }
+      .menu-item:nth-child(odd)  { padding-right: 0; }
+
+      .filosofia { grid-template-columns: 1fr; padding: 72px 24px; gap: 44px; }
+      .filo-cell { border-right: none; padding: 0; border-bottom: 1px solid var(--border); padding-bottom: 44px; }
+      .filo-cell:last-child { padding-left: 0; border-bottom: none; padding-bottom: 0; }
+      .filo-cell:nth-child(2) { padding-left: 0; }
+      .filosofia::before { left: 24px; right: 24px; }
+
+      .vini { grid-template-columns: 1fr; gap: 48px; padding: 72px 24px; }
+      .vini-visual { order: 1; height: 300px; }
+      .vini-text { order: 2; }
+
+      .reservazione { grid-template-columns: 1fr; gap: 52px; padding: 72px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+
+      footer { padding: 52px 24px 28px; }
+      .footer-top { grid-template-columns: 1fr; gap: 40px; }
+      .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     MOBILE MENU
+════════════════════════════════════════ -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="closeMobileMenu()">✕</button>
+  <a href="#benvenuti" onclick="closeMobileMenu()">Benvenuti</a>
+  <a href="#menu" onclick="closeMobileMenu()">Menu</a>
+  <a href="#vini" onclick="closeMobileMenu()">Vini</a>
+  <a href="#reservazione" onclick="closeMobileMenu()">Reservazione</a>
+</div>
+
+<!-- ════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════ -->
+<nav class="navbar" id="navbar">
+  <a href="#" class="nav-logo">La <em>Cucina</em></a>
+  <div class="nav-links">
+    <a href="#benvenuti">Benvenuti</a>
+    <a href="#menu">Menu</a>
+    <a href="#vini">Vini</a>
+    <a href="#reservazione">Reservazione</a>
+  </div>
+  <a href="#reservazione" class="nav-reserve">Réserver</a>
+  <div class="nav-hamburger" onclick="openMobileMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════
+     ① VIDEO HERO  (fixed, fades on scroll)
+════════════════════════════════════════ -->
+<div class="video-hero" id="videoHero">
+
+  <!-- Illustrated animated background (simulates a rich kitchen video) -->
+  <div class="video-fallback"></div>
+  <div class="hero-illustration">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
+         xmlns="http://www.w3.org/2000/svg"
+         style="position:absolute;inset:0;width:100%;height:100%;">
+      <defs>
+        <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%">
+          <stop offset="0%"   stop-color="#3a1a08" stop-opacity="1"/>
+          <stop offset="100%" stop-color="#0d0602" stop-opacity="1"/>
+        </radialGradient>
+        <radialGradient id="candleGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#f5c04a" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#f5c04a" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="plateGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#c87030" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="#c87030" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="softBlur"><feGaussianBlur stdDeviation="2.5"/></filter>
+        <filter id="glowBlur"><feGaussianBlur stdDeviation="12"/></filter>
+        <filter id="candleBlur"><feGaussianBlur stdDeviation="28"/></filter>
+      </defs>
+
+      <!-- Background -->
+      <rect width="1440" height="900" fill="url(#bgGrad)"/>
+
+      <!-- Wall texture — subtle brick pattern -->
+      <rect width="1440" height="900" fill="none" stroke="rgba(255,255,255,0.012)" stroke-width="60"/>
+      <!-- Horizontal mortar lines -->
+      <line x1="0" y1="150" x2="1440" y2="150" stroke="rgba(100,60,20,0.06)" stroke-width="2"/>
+      <line x1="0" y1="240" x2="1440" y2="240" stroke="rgba(100,60,20,0.05)" stroke-width="1.5"/>
+      <line x1="0" y1="330" x2="1440" y2="330" stroke="rgba(100,60,20,0.05)" stroke-width="1.5"/>
+      <line x1="0" y1="420" x2="1440" y2="420" stroke="rgba(100,60,20,0.04)" stroke-width="1"/>
+      <line x1="0" y1="510" x2="1440" y2="510" stroke="rgba(100,60,20,0.04)" stroke-width="1"/>
+      <line x1="0" y1="600" x2="1440" y2="600" stroke="rgba(100,60,20,0.03)" stroke-width="1"/>
+      <line x1="0" y1="690" x2="1440" y2="690" stroke="rgba(100,60,20,0.03)" stroke-width="1"/>
+
+      <!-- Large ambient warm glow center -->
+      <ellipse cx="720" cy="580" rx="600" ry="350" fill="rgba(180,80,20,0.08)" filter="url(#candleBlur)"/>
+      <ellipse cx="720" cy="580" rx="300" ry="200" fill="rgba(220,120,30,0.06)" filter="url(#candleBlur)"/>
+
+      <!-- ──────── TABLE SCENE ──────── -->
+
+      <!-- Table surface -->
+      <ellipse cx="720" cy="820" rx="500" ry="90" fill="rgba(60,30,10,0.85)"/>
+      <ellipse cx="720" cy="810" rx="490" ry="80" fill="rgba(80,40,15,0.9)"/>
+      <!-- Table cloth drape -->
+      <path d="M230 820 Q300 790 720 785 Q1140 790 1210 820" fill="none" stroke="rgba(240,225,195,0.15)" stroke-width="3"/>
+      <!-- Table surface sheen -->
+      <ellipse cx="580" cy="795" rx="180" ry="25" fill="rgba(255,220,140,0.06)" filter="url(#softBlur)"/>
+
+      <!-- Wine bottle (left) -->
+      <g opacity="0.82">
+        <rect x="298" y="640" width="26" height="160" rx="4" fill="#1a3a10"/>
+        <rect x="303" y="628" width="16" height="20" rx="3" fill="#1a3a10"/>
+        <rect x="306" y="616" width="10" height="16" rx="5" fill="#2a2a1a"/>
+        <!-- label -->
+        <rect x="300" y="672" width="22" height="38" rx="1" fill="rgba(240,220,160,0.9)"/>
+        <rect x="303" y="678" width="16" height="2" fill="rgba(100,60,20,0.6)"/>
+        <rect x="305" y="683" width="12" height="1.5" fill="rgba(100,60,20,0.4)"/>
+        <rect x="305" y="687" width="12" height="1.5" fill="rgba(100,60,20,0.4)"/>
+        <!-- foil neck -->
+        <rect x="302" y="626" width="18" height="8" rx="1" fill="#8B1A00" opacity="0.85"/>
+      </g>
+
+      <!-- Wine glass (left, filled) -->
+      <g opacity="0.78">
+        <!-- stem & base -->
+        <rect x="378" y="770" width="4" height="30" fill="rgba(255,255,255,0.35)"/>
+        <ellipse cx="380" cy="800" rx="18" ry="4" fill="rgba(255,255,255,0.20)"/>
+        <!-- bowl -->
+        <path d="M358 680 Q355 740 375 768 L385 768 Q405 740 402 680 Z" fill="rgba(255,255,255,0.12)"/>
+        <path d="M362 684 Q359 740 377 766 L383 766 Q401 740 398 684 Z" fill="rgba(255,255,255,0.08)"/>
+        <!-- wine liquid -->
+        <path d="M362 730 Q360 755 377 766 L383 766 Q400 755 398 730 Z" fill="rgba(140,20,20,0.72)"/>
+        <!-- rim -->
+        <ellipse cx="380" cy="680" rx="22" ry="4" fill="rgba(255,255,255,0.25)"/>
+        <!-- rim highlight -->
+        <path d="M360 678 Q365 676 372 677" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
+        <!-- reflection -->
+        <line x1="370" y1="700" x2="368" y2="730" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+      </g>
+
+      <!-- MAIN PLATE (center) -->
+      <g>
+        <!-- plate shadow -->
+        <ellipse cx="720" cy="800" rx="185" ry="32" fill="rgba(0,0,0,0.5)" filter="url(#softBlur)"/>
+        <!-- plate base -->
+        <ellipse cx="720" cy="788" rx="175" ry="30" fill="rgba(240,230,210,0.96)"/>
+        <ellipse cx="720" cy="784" rx="162" ry="26" fill="rgba(248,240,222,0.98)"/>
+        <!-- plate inner -->
+        <ellipse cx="720" cy="782" rx="145" ry="22" fill="rgba(252,246,234,1)"/>
+        <ellipse cx="720" cy="780" rx="130" ry="19" fill="#fdf8f0"/>
+
+        <!-- PASTA on plate — spaghetti nest -->
+        <!-- Base nest -->
+        <ellipse cx="720" cy="776" rx="90" ry="14" fill="#c89020" opacity="0.6"/>
+        <!-- Spaghetti strands -->
+        <path d="M640 778 Q658 764 676 778 Q694 792 712 776 Q730 760 748 776 Q766 792 784 778 Q800 764 800 778" stroke="#c8901c" stroke-width="3" fill="none" opacity="0.8"/>
+        <path d="M648 782 Q666 768 684 782 Q702 796 720 780 Q738 764 756 780 Q774 796 792 782" stroke="#b8800e" stroke-width="2.5" fill="none" opacity="0.7"/>
+        <path d="M644 774 Q662 760 680 774 Q698 788 716 772 Q734 756 752 772 Q770 788 788 774" stroke="#d4a030" stroke-width="2" fill="none" opacity="0.6"/>
+        <path d="M652 786 Q670 772 688 786 Q706 800 724 784 Q742 768 760 784 Q778 800 796 786" stroke="#a87010" stroke-width="2" fill="none" opacity="0.55"/>
+        <path d="M656 770 Q674 756 692 770 Q710 784 728 768 Q746 752 764 768 Q782 784 796 770" stroke="#c89020" stroke-width="1.8" fill="none" opacity="0.5"/>
+
+        <!-- Tomato sauce blob center -->
+        <ellipse cx="720" cy="772" rx="42" ry="12" fill="#c02818" opacity="0.88"/>
+        <ellipse cx="720" cy="770" rx="32" ry="9"  fill="#d4301a" opacity="0.85"/>
+        <!-- Basil leaves -->
+        <ellipse cx="704" cy="764" rx="12" ry="6" fill="#2d7a2d" transform="rotate(-30 704 764)" opacity="0.9"/>
+        <ellipse cx="736" cy="762" rx="11" ry="5.5" fill="#40916c" transform="rotate(22 736 762)" opacity="0.88"/>
+        <ellipse cx="718" cy="760" rx="9"  ry="4.5" fill="#2d7a2d" transform="rotate(-8 718 760)" opacity="0.85"/>
+        <!-- Parmesan shavings -->
+        <ellipse cx="690" cy="776" rx="10" ry="4" fill="#f2e8c8" opacity="0.85" transform="rotate(-22 690 776)"/>
+        <ellipse cx="748" cy="774" rx="9"  ry="3.5" fill="#f2e8c8" opacity="0.80" transform="rotate(15 748 774)"/>
+        <ellipse cx="720" cy="782" rx="8"  ry="3"   fill="#f2e8c8" opacity="0.78" transform="rotate(5 720 782)"/>
+        <!-- Pepper -->
+        <circle cx="708" cy="770" r="2.2" fill="#1a1208" opacity="0.7"/>
+        <circle cx="730" cy="768" r="1.8" fill="#1a1208" opacity="0.65"/>
+        <!-- Olive oil drizzle -->
+        <path d="M672 778 Q690 770 710 775 Q730 780 748 772" stroke="rgba(200,160,30,0.5)" stroke-width="2.5" fill="none"/>
+        <!-- Plate rim decoration -->
+        <ellipse cx="720" cy="780" rx="160" ry="26" fill="none" stroke="rgba(200,180,140,0.3)" stroke-width="1"/>
+        <!-- Plate glow -->
+        <ellipse cx="720" cy="772" rx="120" ry="18" fill="url(#plateGlow)" filter="url(#softBlur)"/>
+      </g>
+
+      <!-- Wine glass (right, empty) -->
+      <g opacity="0.72">
+        <rect x="1052" y="770" width="4" height="30" fill="rgba(255,255,255,0.32)"/>
+        <ellipse cx="1054" cy="800" rx="18" ry="4" fill="rgba(255,255,255,0.18)"/>
+        <path d="M1032 680 Q1029 740 1049 768 L1059 768 Q1079 740 1076 680 Z" fill="rgba(255,255,255,0.10)"/>
+        <ellipse cx="1054" cy="680" rx="22" ry="4" fill="rgba(255,255,255,0.22)"/>
+        <path d="M1034 678 Q1039 676 1046 677" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none"/>
+        <line x1="1044" y1="700" x2="1042" y2="730" stroke="rgba(255,255,255,0.10)" stroke-width="1.5"/>
+      </g>
+
+      <!-- Candle (right of plate) -->
+      <g>
+        <!-- Candle holder -->
+        <ellipse cx="870" cy="800" rx="16" ry="5" fill="rgba(180,150,80,0.6)"/>
+        <rect x="858" y="770" width="24" height="30" rx="2" fill="rgba(180,150,80,0.55)"/>
+        <!-- Candle body -->
+        <rect x="862" y="650" width="16" height="125" rx="3" fill="rgba(248,238,210,0.95)"/>
+        <!-- Wax drips -->
+        <path d="M862 700 Q858 710 860 720" stroke="rgba(248,238,210,0.7)" stroke-width="3" fill="none"/>
+        <path d="M878 695 Q882 706 880 715" stroke="rgba(248,238,210,0.6)" stroke-width="2.5" fill="none"/>
+        <!-- Wick -->
+        <line x1="870" y1="640" x2="870" y2="652" stroke="#2a1a08" stroke-width="1.5"/>
+        <!-- Flame -->
+        <g style="animation: flicker 2.1s ease-in-out infinite alternate;">
+          <ellipse cx="870" cy="632" rx="6" ry="10" fill="rgba(255,200,60,0.92)" filter="url(#softBlur)"/>
+          <ellipse cx="870" cy="636" rx="4" ry="7"  fill="rgba(255,160,20,0.85)"/>
+          <ellipse cx="870" cy="640" rx="3" ry="5"  fill="rgba(255,220,100,0.7)"/>
+          <ellipse cx="870" cy="636" rx="2" ry="4"  fill="rgba(255,255,200,0.9)"/>
+        </g>
+        <!-- Candle glow -->
+        <ellipse cx="870" cy="634" rx="80" ry="60" fill="url(#candleGlow)" filter="url(#candleBlur)"/>
+      </g>
+
+      <!-- Second candle (far left) -->
+      <g opacity="0.6">
+        <rect x="188" y="706" width="12" height="90" rx="2" fill="rgba(248,238,210,0.85)"/>
+        <ellipse cx="194" cy="796" rx="11" ry="3" fill="rgba(180,150,80,0.5)"/>
+        <line x1="194" y1="698" x2="194" y2="706" stroke="#2a1a08" stroke-width="1.2"/>
+        <ellipse cx="194" cy="694" rx="4" ry="7"  fill="rgba(255,200,60,0.8)" filter="url(#softBlur)"/>
+        <ellipse cx="194" cy="698" rx="3" ry="5"  fill="rgba(255,160,20,0.75)"/>
+        <ellipse cx="194" cy="694" rx="60" ry="50" fill="url(#candleGlow)" filter="url(#candleBlur)" opacity="0.7"/>
+      </g>
+
+      <!-- Small bread basket -->
+      <g opacity="0.75" transform="translate(940, 740)">
+        <!-- basket weave -->
+        <ellipse cx="80" cy="55" rx="72" ry="22" fill="#8a5820"/>
+        <path d="M12 30 Q30 10 80 8 Q130 10 148 30 L148 55 Q130 40 80 38 Q30 40 12 55 Z" fill="#9a6828"/>
+        <path d="M8 30 Q28 8 80 6 Q132 8 152 30" fill="none" stroke="#7a4810" stroke-width="2.5" opacity="0.6"/>
+        <!-- Bread rolls peeking out -->
+        <ellipse cx="58" cy="22" rx="22" ry="15" fill="#d4963e" opacity="0.9"/>
+        <ellipse cx="58" cy="18" rx="18" ry="11" fill="#e4a848"/>
+        <path d="M48 16 Q58 12 68 16" fill="none" stroke="#c88030" stroke-width="1.5" opacity="0.7"/>
+        <ellipse cx="98" cy="20" rx="20" ry="13" fill="#d4963e" opacity="0.85"/>
+        <ellipse cx="98" cy="16" rx="16" ry="10" fill="#e4a848"/>
+        <path d="M89 14 Q98 10 107 14" fill="none" stroke="#c88030" stroke-width="1.5" opacity="0.65"/>
+        <!-- Cloth/napkin peeking -->
+        <path d="M12 30 Q28 26 32 35" fill="none" stroke="rgba(240,225,195,0.5)" stroke-width="3"/>
+      </g>
+
+      <!-- Scattered herbs/flowers decorative -->
+      <circle cx="540" cy="800" r="3" fill="rgba(60,160,60,0.4)"/>
+      <circle cx="552" cy="796" r="2" fill="rgba(60,160,60,0.35)"/>
+      <circle cx="545" cy="793" r="2.5" fill="rgba(60,160,60,0.3)"/>
+
+      <!-- Top ambient — chandelier suggestion -->
+      <ellipse cx="720" cy="0" rx="400" ry="120" fill="rgba(200,140,40,0.04)" filter="url(#candleBlur)"/>
+      <!-- Hanging chain lines -->
+      <line x1="720" y1="0" x2="710" y2="180" stroke="rgba(200,160,80,0.12)" stroke-width="1"/>
+      <line x1="720" y1="0" x2="730" y2="180" stroke="rgba(200,160,80,0.10)" stroke-width="1"/>
+      <!-- Chandelier body suggestion -->
+      <ellipse cx="720" cy="185" rx="55" ry="8" fill="rgba(180,140,60,0.15)"/>
+
+      <!-- Floor shadow -->
+      <rect x="0" y="820" width="1440" height="80" fill="rgba(0,0,0,0.6)"/>
+
+    </svg>
+  </div>
+
+  <!-- Hero text overlay -->
+  <div class="video-hero-content">
+    <div class="hero-eyebrow">Ristorante · Cucina Autentica</div>
+    <h1 class="hero-name">La <em>Cucina</em></h1>
+    <p class="hero-sub">Dove ogni piatto racconta una storia</p>
+    <div class="hero-cta-row">
+      <a href="#menu" class="btn-gold">Découvrir le Menu</a>
+      <a href="#reservazione" class="btn-white">Réserver une Table</a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span class="scroll-hint-text">Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- SPACER so content starts below the fold -->
+<div class="video-spacer"></div>
+
+<!-- ════════════════════════════════════════
+     SITE CONTENT (slides over video)
+════════════════════════════════════════ -->
+<div class="site-content">
+
+  <!-- ② BENVENUTI -->
+  <section class="benvenuti" id="benvenuti">
+    <div class="benvenuti-text reveal">
+      <div class="section-eyebrow">Benvenuti</div>
+      <h2 class="benvenuti-title">Une table au cœur<br>de <em>l'Italie</em> authentique</h2>
+      <p class="benvenuti-body">
+        La Cucina est née d'une passion simple — celle de partager la vraie cuisine italienne, 
+        dans toute sa générosité et sa chaleur. Chaque soir, notre chef prépare des plats qui 
+        respectent les traditions de nos nonnes, avec des ingrédients soigneusement sélectionnés 
+        en Italie et ici, au marché local.
+      </p>
+      <p class="benvenuti-body" style="margin-bottom:28px;">
+        Du nord au sud de la Botte, notre menu voyage entre les régions — de la Toscane à la Sicile, 
+        de l'Émilie-Romagne à la Campanie — pour vous offrir une expérience unique à chaque visite.
+      </p>
+      <div class="benvenuti-sig">— Chef Marco Ferretti</div>
+    </div>
+
+    <div class="benvenuti-right reveal" style="transition-delay:0.18s;">
+      <div class="illus-panel">
+        <div class="illus-inner" style="background:linear-gradient(135deg,#2a1208,#4a2010);">
+          <svg viewBox="0 0 600 220" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <!-- Kitchen scene — pasta making -->
+            <rect width="600" height="220" fill="rgba(0,0,0,0)"/>
+            <!-- flour dusted counter suggestion -->
+            <ellipse cx="180" cy="150" rx="130" ry="30" fill="rgba(240,225,195,0.10)"/>
+            <!-- Rolling pasta sheet -->
+            <rect x="90" y="130" width="180" height="3" rx="1.5" fill="rgba(240,225,195,0.55)" transform="rotate(-4 90 130)"/>
+            <rect x="95" y="138" width="170" height="2" rx="1" fill="rgba(240,225,195,0.35)" transform="rotate(-2 95 138)"/>
+            <!-- Rolling pin -->
+            <rect x="68" y="118" width="200" height="16" rx="8" fill="rgba(160,110,60,0.85)"/>
+            <circle cx="70" cy="126" r="9" fill="rgba(140,90,40,0.9)"/>
+            <circle cx="268" cy="126" r="9" fill="rgba(140,90,40,0.9)"/>
+            <!-- Hands suggestion -->
+            <ellipse cx="80"  cy="120" rx="20" ry="12" fill="rgba(200,160,110,0.5)" transform="rotate(10 80 120)"/>
+            <ellipse cx="258" cy="122" rx="20" ry="12" fill="rgba(200,160,110,0.5)" transform="rotate(-10 258 122)"/>
+            <!-- Flour cloud -->
+            <ellipse cx="190" cy="115" rx="50" ry="18" fill="rgba(255,255,255,0.06)" filter="url(#softBlur)"/>
+            <!-- Text -->
+            <text x="420" y="100" font-family="Cormorant Garamond, serif" font-style="italic" font-size="28" fill="rgba(200,149,42,0.75)" letter-spacing="2">La Pasta</text>
+            <text x="418" y="125" font-family="Lato, sans-serif" font-size="10" fill="rgba(255,255,255,0.35)" letter-spacing="3">FATTA A MANO</text>
+          </svg>
+          <div class="illus-caption">Pasta fatta a mano ogni giorno</div>
+        </div>
+      </div>
+      <div class="illus-panel">
+        <div class="illus-inner" style="background:linear-gradient(145deg,#1a0a04,#3a1808);">
+          <svg viewBox="0 0 280 150" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <!-- Pizza oven suggestion -->
+            <ellipse cx="140" cy="100" rx="100" ry="40" fill="rgba(180,60,10,0.25)"/>
+            <path d="M50 100 Q50 50 140 45 Q230 50 230 100 Z" fill="rgba(120,60,20,0.55)"/>
+            <path d="M60 98 Q60 56 140 52 Q220 56 220 98" fill="rgba(60,20,5,0.8)"/>
+            <!-- Fire inside oven -->
+            <ellipse cx="140" cy="90" rx="30" ry="15" fill="rgba(255,120,20,0.5)" filter="url(#softBlur)"/>
+            <ellipse cx="140" cy="88" rx="16" ry="10" fill="rgba(255,200,60,0.6)"/>
+            <!-- Pizza peel -->
+            <rect x="100" y="94" width="80" height="8" rx="2" fill="rgba(180,130,60,0.7)"/>
+            <rect x="140" y="70" width="6" height="60" rx="2" fill="rgba(140,100,40,0.75)"/>
+            <text x="92" y="135" font-family="Cormorant Garamond, serif" font-style="italic" font-size="18" fill="rgba(200,149,42,0.8)">Il Forno</text>
+          </svg>
+          <div class="illus-caption">Four à bois napolitain</div>
+        </div>
+      </div>
+      <div class="illus-panel">
+        <div class="illus-inner" style="background:linear-gradient(155deg,#0e1a08,#182010);">
+          <svg viewBox="0 0 280 150" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <!-- Herb garden / basil -->
+            <!-- Pots -->
+            <path d="M60 120 Q55 105 65 100 L95 100 Q105 105 100 120 Z" fill="rgba(140,80,30,0.7)"/>
+            <ellipse cx="80" cy="100" rx="18" ry="6" fill="rgba(120,70,25,0.8)"/>
+            <!-- Basil leaves -->
+            <ellipse cx="72" cy="80" rx="14" ry="9"  fill="#3d8b30" transform="rotate(-25 72 80)"/>
+            <ellipse cx="88" cy="76" rx="13" ry="8"  fill="#4a9a3a" transform="rotate(20 88 76)"/>
+            <ellipse cx="80" cy="70" rx="12" ry="8"  fill="#3d8b30" transform="rotate(-5 80 70)"/>
+            <ellipse cx="68" cy="70" rx="10" ry="7"  fill="#55aa42" transform="rotate(-35 68 70)"/>
+            <ellipse cx="92" cy="72" rx="10" ry="6.5" fill="#4a9a3a" transform="rotate(30 92 72)"/>
+            <!-- Second pot -->
+            <path d="M145 122 Q140 108 148 102 L175 102 Q183 108 178 122 Z" fill="rgba(140,80,30,0.65)"/>
+            <ellipse cx="162" cy="102" rx="16" ry="5" fill="rgba(120,70,25,0.75)"/>
+            <!-- Rosemary -->
+            <line x1="162" y1="100" x2="155" y2="68" stroke="rgba(80,120,40,0.85)" stroke-width="1.5"/>
+            <line x1="162" y1="100" x2="165" y2="65" stroke="rgba(80,120,40,0.8)" stroke-width="1.5"/>
+            <line x1="162" y1="100" x2="172" y2="72" stroke="rgba(80,120,40,0.75)" stroke-width="1.5"/>
+            <!-- needle leaves -->
+            <line x1="157" y1="78" x2="150" y2="82" stroke="rgba(60,120,40,0.9)" stroke-width="1.2"/>
+            <line x1="159" y1="74" x2="152" y2="77" stroke="rgba(60,120,40,0.85)" stroke-width="1.2"/>
+            <line x1="166" y1="75" x2="174" y2="79" stroke="rgba(60,120,40,0.85)" stroke-width="1.2"/>
+            <text x="200" y="100" font-family="Cormorant Garamond, serif" font-style="italic" font-size="18" fill="rgba(200,149,42,0.8)">Erbe</text>
+            <text x="196" y="118" font-family="Lato, sans-serif" font-size="9" fill="rgba(255,255,255,0.35)" letter-spacing="2">FRESCHE</text>
+          </svg>
+          <div class="illus-caption">Herbes du potager</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ SPECIALITÀ -->
+  <section class="specialita" id="menu">
+    <div class="specialita-header reveal">
+      <div>
+        <div class="section-eyebrow" style="color:rgba(200,149,42,0.7);">Le Menu</div>
+        <h2 class="specialita-title">Le Nostre<br><em>Specialità</em></h2>
+      </div>
+      <p style="font-size:13px;color:rgba(255,255,255,0.38);max-width:200px;text-align:right;line-height:1.9;font-weight:300;">
+        Ingrédients sélectionnés,<br>recettes de tradition
+      </p>
+    </div>
+
+    <div class="menu-tabs reveal">
+      <button class="menu-tab active" onclick="switchTab('antipasti',this)">Antipasti</button>
+      <button class="menu-tab" onclick="switchTab('primi',this)">Primi Piatti</button>
+      <button class="menu-tab" onclick="switchTab('secondi',this)">Secondi</button>
+      <button class="menu-tab" onclick="switchTab('dolci',this)">Dolci</button>
+    </div>
+
+    <!-- ANTIPASTI -->
+    <div class="menu-grid active" id="tab-antipasti">
+      <div class="menu-item reveal">
+        <div>
+          <div class="menu-item-name"><em>Bruschetta al Pomodoro</em></div>
+          <div class="menu-item-desc">Pain de campagne grillé, tomates San Marzano, basilic frais, huile d'olive extra vierge, ail</div>
+          <span class="menu-item-badge">Signature</span>
+        </div>
+        <div class="menu-item-price">7 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.1s">
+        <div>
+          <div class="menu-item-name"><em>Carpaccio di Manzo</em></div>
+          <div class="menu-item-desc">Fines tranches de bœuf cru, copeaux de parmesan 24 mois, roquette, câpres, citron confit</div>
+        </div>
+        <div class="menu-item-price">14 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.15s">
+        <div>
+          <div class="menu-item-name"><em>Burrata Pugliese</em></div>
+          <div class="menu-item-desc">Burrata crémeuse de Pouilles, tomates cerises rôties, pesto de pistaches de Bronte, fleur de sel</div>
+          <span class="menu-item-badge">Spécialité</span>
+        </div>
+        <div class="menu-item-price">13 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.2s">
+        <div>
+          <div class="menu-item-name"><em>Frittura di Fiori di Zucca</em></div>
+          <div class="menu-item-desc">Fleurs de courgette en tempura légère, ricotta et anchois, sauce au citron et herbes fraîches</div>
+        </div>
+        <div class="menu-item-price">11 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.25s">
+        <div>
+          <div class="menu-item-name"><em>Antipasto della Casa</em></div>
+          <div class="menu-item-desc">Sélection de charcuteries italiennes : prosciutto crudo, bresaola, mortadelle, olives marinées</div>
+        </div>
+        <div class="menu-item-price">18 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.3s">
+        <div>
+          <div class="menu-item-name"><em>Insalata Caprese</em></div>
+          <div class="menu-item-desc">Mozzarella di bufala DOP, tomates cœur de bœuf, basilic, huile d'olive et réduction balsamique</div>
+        </div>
+        <div class="menu-item-price">12 €</div>
+      </div>
+    </div>
+
+    <!-- PRIMI -->
+    <div class="menu-grid" id="tab-primi">
+      <div class="menu-item reveal">
+        <div>
+          <div class="menu-item-name"><em>Spaghetti alla Carbonara</em></div>
+          <div class="menu-item-desc">Guanciale de Norcia, pecorino romano DOP, œuf entier, poivre noir fraîchement concassé</div>
+          <span class="menu-item-badge">Recette Romaine</span>
+        </div>
+        <div class="menu-item-price">16 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.1s">
+        <div>
+          <div class="menu-item-name"><em>Tagliatelle al Ragù Bolognese</em></div>
+          <div class="menu-item-desc">Tagliatelle fraîches maison, ragù de veau et bœuf mijoté 6 heures, parmesan 36 mois râpé</div>
+          <span class="menu-item-badge">Signature</span>
+        </div>
+        <div class="menu-item-price">17 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.15s">
+        <div>
+          <div class="menu-item-name"><em>Risotto ai Funghi Porcini</em></div>
+          <div class="menu-item-desc">Risotto Carnaroli, cèpes de saison, beurre de montagne, thym frais, copeaux de truffe noire</div>
+        </div>
+        <div class="menu-item-price">19 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.2s">
+        <div>
+          <div class="menu-item-name"><em>Cacio e Pepe</em></div>
+          <div class="menu-item-desc">Tonnarelli à la semoule de blé dur, pecorino romano, poivre noir en abondance — simplicité absolue</div>
+        </div>
+        <div class="menu-item-price">15 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.25s">
+        <div>
+          <div class="menu-item-name"><em>Linguine alle Vongole</em></div>
+          <div class="menu-item-desc">Palourdes fraîches, vin blanc de Campanie, ail, piment de Calabre, persil plat, huile d'olive</div>
+        </div>
+        <div class="menu-item-price">21 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.3s">
+        <div>
+          <div class="menu-item-name"><em>Gnocchi al Tartufo</em></div>
+          <div class="menu-item-desc">Gnocchi de pommes de terre maison, crème de truffe noire, parmesan fondant, noix torréfiées</div>
+        </div>
+        <div class="menu-item-price">22 €</div>
+      </div>
+    </div>
+
+    <!-- SECONDI -->
+    <div class="menu-grid" id="tab-secondi">
+      <div class="menu-item reveal">
+        <div>
+          <div class="menu-item-name"><em>Branzino al Forno</em></div>
+          <div class="menu-item-desc">Loup de mer rôti aux herbes, pommes de terre nouvelles, salsa verde au citron et câpres</div>
+          <span class="menu-item-badge">Poisson frais</span>
+        </div>
+        <div class="menu-item-price">26 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.1s">
+        <div>
+          <div class="menu-item-name"><em>Costolette d'Agnello</em></div>
+          <div class="menu-item-desc">Côtelettes d'agneau grillées à la braise, herbes de Toscane, légumes de saison, jus corsé</div>
+        </div>
+        <div class="menu-item-price">29 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.15s">
+        <div>
+          <div class="menu-item-name"><em>Bistecca alla Fiorentina</em></div>
+          <div class="menu-item-desc">T-bone de bœuf Chianina IGP, cuit à la braise, huile d'olive de la récolte, sel de Cervia (min. 600g)</div>
+          <span class="menu-item-badge">Pièce Noble</span>
+        </div>
+        <div class="menu-item-price">48 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.2s">
+        <div>
+          <div class="menu-item-name"><em>Pollo alla Cacciatora</em></div>
+          <div class="menu-item-desc">Poulet fermier à l'ancienne, tomates, olives, câpres, vin blanc, romarin — mijotage traditionnel</div>
+        </div>
+        <div class="menu-item-price">22 €</div>
+      </div>
+    </div>
+
+    <!-- DOLCI -->
+    <div class="menu-grid" id="tab-dolci">
+      <div class="menu-item reveal">
+        <div>
+          <div class="menu-item-name"><em>Tiramisù della Nonna</em></div>
+          <div class="menu-item-desc">Recette familiale — mascarpone, espresso torréfié, savoiards, marsala, cacao de Modica</div>
+          <span class="menu-item-badge">Fait Maison</span>
+        </div>
+        <div class="menu-item-price">9 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.1s">
+        <div>
+          <div class="menu-item-name"><em>Panna Cotta al Limoncello</em></div>
+          <div class="menu-item-desc">Crème cuite vanille de Madagascar, coulis de limoncello, fraises et menthe fraîche</div>
+        </div>
+        <div class="menu-item-price">8 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.15s">
+        <div>
+          <div class="menu-item-name"><em>Cannoli Siciliani</em></div>
+          <div class="menu-item-desc">Tubes croustillants frits, ricotta sucrée à la fleur d'oranger, zestes d'orange, pistaches de Bronte</div>
+        </div>
+        <div class="menu-item-price">8 €</div>
+      </div>
+      <div class="menu-item reveal" style="transition-delay:0.2s">
+        <div>
+          <div class="menu-item-name"><em>Gelato Artigianale</em></div>
+          <div class="menu-item-desc">Trois boules au choix : pistacchio di Bronte, stracciatella, cioccolato fondente, fragola di bosco</div>
+        </div>
+        <div class="menu-item-price">7 €</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ④ FILOSOFIA -->
+  <section class="filosofia" id="filosofia">
+    <div class="filo-cell reveal">
+      <div class="filo-number">01</div>
+      <h3 class="filo-title">Les <em>Produits</em></h3>
+      <p class="filo-body">Nous sélectionnons nos ingrédients avec soin — parmesan de Reggio Emilia, mozzarella di bufala de Campanie, huile d'olive de la Vallée du Bélice. La qualité commence à la source.</p>
+    </div>
+    <div class="filo-cell reveal" style="transition-delay:0.15s">
+      <div class="filo-number">02</div>
+      <h3 class="filo-title">Le <em>Savoir-Faire</em></h3>
+      <p class="filo-body">Notre chef Marco Ferretti a appris à faire la pasta à la main à Bologne. Chaque soir, les pâtes sont fraîches, la pâte à pizza fermente 48 heures, les sauces mijotent lentement.</p>
+    </div>
+    <div class="filo-cell reveal" style="transition-delay:0.30s">
+      <div class="filo-number">03</div>
+      <h3 class="filo-title">L'<em>Accoglienza</em></h3>
+      <p class="filo-body">En Italie, la table est un lieu sacré — de partage, de rires, de mémoire. Nous voulons que chaque repas chez nous soit une parenthèse de bonheur. Benvenuti a casa.</p>
+    </div>
+  </section>
+
+  <!-- ⑤ VINI -->
+  <section class="vini" id="vini">
+    <div class="vini-visual reveal">
+      <svg viewBox="0 0 440 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+        <defs>
+          <radialGradient id="viniGlow" cx="50%" cy="40%" r="55%">
+            <stop offset="0%" stop-color="rgba(180,60,20,0.15)"/>
+            <stop offset="100%" stop-color="rgba(180,60,20,0)"/>
+          </radialGradient>
+        </defs>
+        <rect width="440" height="520" fill="rgba(28,18,8,0.04)" rx="2"/>
+        <!-- Glow -->
+        <ellipse cx="220" cy="200" rx="200" ry="180" fill="url(#viniGlow)"/>
+
+        <!-- Wine bottle large (center) -->
+        <g transform="translate(155, 30)">
+          <!-- bottle body -->
+          <rect x="26" y="130" width="78" height="300" rx="6" fill="#1a2a0e"/>
+          <!-- bottle shoulder -->
+          <path d="M26 130 Q18 90 35 70 L95 70 Q112 90 104 130 Z" fill="#1a2a0e"/>
+          <!-- bottle neck -->
+          <rect x="44" y="30" width="42" height="46" rx="4" fill="#1a2a0e"/>
+          <!-- cork & foil -->
+          <rect x="48" y="10" width="34" height="22" rx="5" fill="#8B1A00"/>
+          <rect x="46" y="8"  width="38" height="8"  rx="3" fill="#a02010"/>
+          <!-- label -->
+          <rect x="30" y="160" width="70" height="100" rx="2" fill="rgba(240,220,160,0.95)"/>
+          <rect x="35" y="172" width="60" height="2" fill="rgba(100,60,20,0.5)"/>
+          <!-- label art — small grape cluster -->
+          <circle cx="65" cy="196" r="5" fill="rgba(80,20,60,0.5)"/>
+          <circle cx="75" cy="192" r="4.5" fill="rgba(80,20,60,0.45)"/>
+          <circle cx="58" cy="192" r="4.5" fill="rgba(80,20,60,0.45)"/>
+          <circle cx="68" cy="188" r="4" fill="rgba(80,20,60,0.4)"/>
+          <line x1="68" y1="184" x2="68" y2="176" stroke="rgba(80,50,20,0.4)" stroke-width="1.5"/>
+          <rect x="38" y="208" width="54" height="2" fill="rgba(100,60,20,0.35)"/>
+          <rect x="42" y="213" width="46" height="1.5" fill="rgba(100,60,20,0.30)"/>
+          <rect x="42" y="217" width="46" height="1.5" fill="rgba(100,60,20,0.28)"/>
+          <text x="50" y="238" font-family="Cormorant Garamond, serif" font-style="italic" font-size="14" fill="rgba(100,60,20,0.7)">Chianti</text>
+          <rect x="35" y="246" width="60" height="1" fill="rgba(100,60,20,0.3)"/>
+          <!-- second label -->
+          <rect x="32" y="285" width="66" height="30" rx="1" fill="rgba(230,210,140,0.7)"/>
+          <rect x="37" y="290" width="56" height="1.5" fill="rgba(100,60,20,0.4)"/>
+          <text x="46" y="304" font-family="Lato, sans-serif" font-size="8" fill="rgba(100,60,20,0.5)" letter-spacing="2">DOCG</text>
+          <!-- bottle shine -->
+          <path d="M38 140 L36 380" stroke="rgba(255,255,255,0.08)" stroke-width="4"/>
+          <path d="M44 140 L42 280" stroke="rgba(255,255,255,0.05)" stroke-width="2"/>
+        </g>
+
+        <!-- Small wine glass left -->
+        <g transform="translate(45, 120)" opacity="0.8">
+          <rect x="32" y="220" width="3" height="60" fill="rgba(255,255,255,0.35)"/>
+          <ellipse cx="33.5" cy="280" rx="18" ry="4" fill="rgba(255,255,255,0.18)"/>
+          <path d="M8 60 Q5 130 29 218 L38 218 Q62 130 59 60 Z" fill="rgba(255,255,255,0.10)"/>
+          <path d="M12 64 Q9 132 31 216 L36 216 Q58 132 55 64 Z" fill="rgba(255,255,255,0.07)"/>
+          <!-- wine inside -->
+          <path d="M13 160 Q11 190 31 216 L36 216 Q56 190 54 160 Z" fill="rgba(140,20,20,0.65)"/>
+          <ellipse cx="33.5" cy="60" rx="25" ry="5" fill="rgba(255,255,255,0.22)"/>
+          <path d="M12 57 Q17 55 23 56" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none"/>
+        </g>
+
+        <!-- Grapes cluster right side -->
+        <g transform="translate(305, 60)" opacity="0.7">
+          <!-- Vine leaf -->
+          <path d="M60 0 Q80 20 70 50 Q60 70 40 65 Q20 60 15 40 Q10 20 30 5 Q45 -5 60 0 Z" fill="#3d7a2d" opacity="0.85"/>
+          <path d="M40 0 Q60 10 50 35 Q40 55 20 50" fill="none" stroke="#2d6a1d" stroke-width="1.5" opacity="0.6"/>
+          <!-- Grape clusters -->
+          <circle cx="60" cy="120" r="12" fill="#4a1048"/>
+          <circle cx="78" cy="112" r="11" fill="#541258"/>
+          <circle cx="45" cy="112" r="10" fill="#4a1048"/>
+          <circle cx="68" cy="100" r="10" fill="#4a1048"/>
+          <circle cx="52" cy="100" r="9"  fill="#541258"/>
+          <circle cx="86" cy="124" r="10" fill="#3a0840"/>
+          <circle cx="40" cy="124" r="9"  fill="#4a1048"/>
+          <circle cx="62" cy="136" r="9"  fill="#3a0840"/>
+          <circle cx="76" cy="136" r="8"  fill="#4a1048"/>
+          <!-- highlight dots on grapes -->
+          <circle cx="56" cy="117" r="3" fill="rgba(255,255,255,0.18)"/>
+          <circle cx="74" cy="108" r="2.5" fill="rgba(255,255,255,0.15)"/>
+          <circle cx="42" cy="108" r="2.5" fill="rgba(255,255,255,0.15)"/>
+          <!-- Vine tendrils -->
+          <path d="M62 88 Q68 70 72 55 Q76 40 80 20" fill="none" stroke="rgba(60,100,30,0.6)" stroke-width="1.5"/>
+          <path d="M72 55 Q85 48 90 40" fill="none" stroke="rgba(60,100,30,0.5)" stroke-width="1.2"/>
+        </g>
+
+        <!-- Ground / surface -->
+        <ellipse cx="220" cy="490" rx="200" ry="16" fill="rgba(28,18,8,0.12)"/>
+      </svg>
+    </div>
+
+    <div class="vini-text reveal" style="transition-delay:0.15s">
+      <div class="section-eyebrow">La Cave</div>
+      <h2 class="vini-title">La Sélection<br>des <em>Vins</em></h2>
+      <p class="vini-body">
+        Notre carte des vins est une traversée de la péninsule — des crus de Toscane aux vins de Sicile, 
+        des Amarone de Vénétie aux frizzanti de l'Émilie. Notre sommelier vous guidera vers l'accord parfait.
+      </p>
+      <div class="vini-list">
+        <div class="vino-item">
+          <span class="vino-name">Chianti Classico Riserva</span>
+          <span class="vino-region">DOCG · Toscane</span>
+          <span class="vino-price">42 €</span>
+        </div>
+        <div class="vino-item">
+          <span class="vino-name">Barolo Cannubi</span>
+          <span class="vino-region">DOCG · Piémont</span>
+          <span class="vino-price">68 €</span>
+        </div>
+        <div class="vino-item">
+          <span class="vino-name">Amarone della Valpolicella</span>
+          <span class="vino-region">DOCG · Vénétie</span>
+          <span class="vino-price">75 €</span>
+        </div>
+        <div class="vino-item">
+          <span class="vino-name">Pinot Grigio delle Venezie</span>
+          <span class="vino-region">DOC · Frioul</span>
+          <span class="vino-price">32 €</span>
+        </div>
+        <div class="vino-item">
+          <span class="vino-name">Prosecco di Valdobbiadene</span>
+          <span class="vino-region">DOCG · Vénétie</span>
+          <span class="vino-price">28 €</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑥ RESERVAZIONE -->
+  <section class="reservazione" id="reservazione">
+    <div class="reserv-left reveal">
+      <div class="section-eyebrow" style="color:rgba(200,149,42,0.7);">Prenotazione</div>
+      <h2 class="reserv-title">Réservez<br>Votre <em>Table</em></h2>
+      <p class="reserv-body">
+        Pour une expérience mémorable, nous vous recommandons de réserver. 
+        Nos tables sont limitées pour vous garantir le calme et l'attention que vous méritez.
+      </p>
+      <div class="contact-list">
+        <div class="contact-item">
+          <div class="contact-icon">✆</div>
+          <div>
+            <div class="contact-label">Téléphone</div>
+            <div class="contact-value">+33 1 42 XX XX XX</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">@</div>
+          <div>
+            <div class="contact-label">Email</div>
+            <div class="contact-value">reservations@lacucina.fr</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">◎</div>
+          <div>
+            <div class="contact-label">Adresse</div>
+            <div class="contact-value">12 Rue de Naples, Tunis</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">◷</div>
+          <div>
+            <div class="contact-label">Horaires</div>
+            <div class="contact-value">Mar–Dim · 12h–14h30 · 19h–23h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reserv-form reveal" style="transition-delay:0.2s">
+      <div class="form-title">Faire une Réservation</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prénom</label>
+          <input class="form-input" type="text" placeholder="Marco">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          <input class="form-input" type="text" placeholder="Ferretti">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-input" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Heure</label>
+          <select class="form-select">
+            <option value="">Choisir...</option>
+            <option>12h00</option><option>12h30</option><option>13h00</option><option>13h30</option>
+            <option>19h00</option><option>19h30</option><option>20h00</option><option>20h30</option>
+            <option>21h00</option><option>21h30</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre de couverts</label>
+        <select class="form-select">
+          <option>1 personne</option><option>2 personnes</option><option>3 personnes</option>
+          <option>4 personnes</option><option>5–6 personnes</option><option>7–8 personnes</option>
+          <option>Groupe (9+)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message (allergies, occasion spéciale…)</label>
+        <textarea class="form-textarea" placeholder="Anniversaire de mariage, allergie aux fruits de mer…"></textarea>
+      </div>
+      <button class="btn-reserv">Confirmer la Réservation</button>
+    </div>
+  </section>
+
+  <!-- ⑦ FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand-name">La <em>Cucina</em></div>
+        <p class="footer-tagline">
+          Où chaque plat raconte une histoire. Une cuisine italienne authentique, préparée chaque jour avec passion et tradition.
+        </p>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="#benvenuti">Benvenuti</a>
+          <a href="#menu">Le Menu</a>
+          <a href="#vini">Carte des Vins</a>
+          <a href="#reservazione">Réservations</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Horaires</div>
+        <div class="footer-hours">
+          <p>Mardi — Vendredi</p>
+          <p style="color:rgba(200,149,42,0.6);">12h00 – 14h30</p>
+          <p style="color:rgba(200,149,42,0.6);">19h00 – 23h00</p>
+          <p style="margin-top:10px;">Samedi – Dimanche</p>
+          <p style="color:rgba(200,149,42,0.6);">12h00 – 23h00</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 La Cucina — Tous droits réservés</span>
+      <span class="footer-decor">Fatto con amore ♥</span>
+    </div>
+  </footer>
+
+</div><!-- end .site-content -->
+
+<!-- CSS animation for candle flicker -->
+<style>
+  @keyframes flicker {
+    0%   { transform: scale(1,1)    translateX(0);  opacity: 0.9; }
+    25%  { transform: scale(1.02,1.05) translateX(1px); opacity: 1; }
+    50%  { transform: scale(0.98,1.02) translateX(-1px);opacity: 0.92; }
+    75%  { transform: scale(1.01,1.04) translateX(0.5px);opacity: 1; }
+    100% { transform: scale(1,1)    translateX(0);  opacity: 0.95; }
+  }
+</style>
+
+<script>
+  /* ── 1. VIDEO HERO: fade out smoothly on scroll ───────────────── */
+  const videoHero = document.getElementById('videoHero');
+  const navbar    = document.getElementById('navbar');
+  const vh        = () => window.innerHeight;
+
+  function onScroll() {
+    const scrollY = window.scrollY;
+
+    /* Fade video: starts fading at 5% scroll, fully gone at 60% vh */
+    const fadeStart = vh() * 0.05;
+    const fadeEnd   = vh() * 0.60;
+    const opacity   = 1 - Math.min(1, Math.max(0, (scrollY - fadeStart) / (fadeEnd - fadeStart)));
+    videoHero.style.opacity = opacity;
+
+    /* Pointer-events: disable when invisible so it doesn't block clicks */
+    videoHero.style.pointerEvents = opacity < 0.05 ? 'none' : 'all';
+
+    /* Navbar pill — becomes opaque after hero passes */
+    if (scrollY > vh() * 0.5) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ── 2. REVEAL ANIMATIONS on scroll ───────────────────────────── */
+  const revealEls = document.querySelectorAll('.reveal');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  revealEls.forEach(el => observer.observe(el));
+
+  /* ── 3. MENU TABS ──────────────────────────────────────────────── */
+  function switchTab(id, btn) {
+    document.querySelectorAll('.menu-grid').forEach(g => g.classList.remove('active'));
+    document.querySelectorAll('.menu-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  /* ── 4. MOBILE MENU ────────────────────────────────────────────── */
+  function openMobileMenu()  { document.getElementById('mobileMenu').classList.add('open'); }
+  function closeMobileMenu() { document.getElementById('mobileMenu').classList.remove('open'); }
+</script>
+</body>
+</html>
