@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>La Cucina — Ristorante Italiano</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,600&family=Lato:wght@300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://public.codepenassets.com/css/normalize-5.0.0.min.css">
+  <link rel='stylesheet' href='https://unpkg.com/splitting@1.0.6/dist/splitting.css'>
+  <link rel="stylesheet" href="./style.css">
+
+
+  
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -145,14 +152,15 @@
 
     /* ── SHARED HERO CONTENT ── */
     .hero-logo {
-      width: 120px;
-      height: 120px;
+      width: 420px;
+      height: 420px;
       object-fit: contain;
       margin-bottom: 28px;
       opacity: 0;
       transform: translateY(12px);
       animation: fadeUp 1s 0.3s ease forwards;
       filter: brightness(0) invert(1);
+      margin-bottom: -90px;
     }
     .hero-eyebrow {
       font-family: var(--font-b);
@@ -283,11 +291,20 @@
     }
     .nav-logo-wrap { display: flex; align-items: center; gap: 12px; text-decoration: none; }
     .nav-logo-img {
-      width: 40px; height: 40px;
+      width: 70px;       /* ✅ plus grand */
+      height: 70px;
       object-fit: contain;
       filter: brightness(0) invert(1);
       transition: filter 0.4s;
     }
+
+.nav-logo-blanc { opacity: 1; position: relative; }
+.nav-logo-color { opacity: 0; position: absolute; left: 0; }
+
+/* Scrolled : blanc caché, couleur visible */
+.navbar.scrolled .nav-logo-blanc { opacity: 0; }
+.navbar.scrolled .nav-logo-color { opacity: 1; }
+
     .navbar.scrolled .nav-logo-img { filter: none; }
     .nav-logo-text {
       font-family: var(--font-d);
@@ -669,6 +686,19 @@
       z-index: 15;
     }
 
+    .hero-badges {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.hero-badges img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
     .gallery-arrow {
       width: 44px;
       height: 44px;
@@ -961,10 +991,11 @@
 
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
-  <a href="#" class="nav-logo-wrap">
-    <img src="assets/logo.jpg" alt="La Cucina" class="nav-logo-img" onerror="this.style.display='none'">
-    <span class="nav-logo-text">La <em>Cucina</em></span>
-  </a>
+<a href="#" class="nav-logo-wrap">
+  <img src="assets/logoBlanc-01.png" alt="La Cucina" class="nav-logo-img nav-logo-blanc" onerror="this.style.display='none'">
+  <img src="assets/logo-01.png"      alt="La Cucina" class="nav-logo-img nav-logo-color" onerror="this.style.display='none'">
+  <span class="nav-logo-text">La <em>Cucina</em></span>
+</a>
   <div class="nav-links">
     <a href="#benvenuti">Benvenuti</a>
     <a href="#menu">Menu</a>
@@ -1019,7 +1050,11 @@
     <source src="assets/video.mp4" type="video/mp4">
   </video>
   <div class="video-hero-content">
-    <img src="assets/logo.jpg" alt="La Cucina" class="hero-logo" onerror="this.style.display='none'">
+    <img src="assets/logoBlanc-01.png" alt="La Cucina" class="hero-logo" onerror="this.style.display='none'">
+    <div class="hero-badges">
+      <img src="assets/tn.png" alt="" />
+      <img src="assets/it.png" alt="" />
+    </div>
     <div class="hero-eyebrow">Ristorante · Cucina Autentica</div>
     <h1 class="hero-name">La <em>Cucina</em></h1>
     <p class="hero-sub">Dove ogni piatto racconta una storia</p>
@@ -1097,7 +1132,11 @@
     <source src="assets/video2.mp4" type="video/mp4">
   </video>
   <div class="video-hero2-content">
-    <img src="assets/logo.jpg" alt="La Cucina" class="hero-logo" onerror="this.style.display='none'">
+    <img src="assets/logoBlanc-01.png" alt="La Cucina" class="hero-logo" onerror="this.style.display='none'">
+    <div class="hero-badges">
+      <img src="assets/tn.png" alt="" />
+      <img src="assets/it.png" alt="" />
+    </div>
     <div class="hero-eyebrow">Ristorante · Cucina Autentica</div>
     <h1 class="hero-name">La <em>Cucina</em></h1>
     <p class="hero-sub">L'arte della tavola italiana</p>
@@ -1127,7 +1166,7 @@
       <h2 class="benvenuti-title">Une table au cœur<br>de <em>l'Italie</em> authentique</h2>
       <p class="benvenuti-body">La Cucina est née d'une passion simple — celle de partager la vraie cuisine italienne, dans toute sa générosité et sa chaleur. Chaque soir, notre chef prépare des plats qui respectent les traditions de nos nonnes, avec des ingrédients soigneusement sélectionnés en Italie et ici, au marché local.</p>
       <p class="benvenuti-body" style="margin-bottom:28px;">Du nord au sud de la Botte, notre menu voyage entre les régions — de la Toscane à la Sicile, de l'Émilie-Romagne à la Campanie — pour vous offrir une expérience unique à chaque visite.</p>
-      <div class="benvenuti-sig">— Chef Marco Ferretti</div>
+      <div class="benvenuti-sig">— chef Daly</div>
     </div>
     <div class="benvenuti-right reveal" style="transition-delay:0.18s;">
       <div class="illus-panel">
@@ -1178,7 +1217,7 @@
       </div>
       <p style="font-size:13px;color:rgba(255,255,255,0.38);max-width:200px;text-align:right;line-height:1.9;font-weight:300;">Ingrédients sélectionnés,<br>recettes de tradition</p>
     </div>
-    <div class="menu-tabs reveal">
+    <!-- <div class="menu-tabs reveal">
       <button class="menu-tab active" onclick="switchTab('antipasti',this)">Antipasti</button>
       <button class="menu-tab" onclick="switchTab('primi',this)">Primi Piatti</button>
       <button class="menu-tab" onclick="switchTab('secondi',this)">Secondi</button>
@@ -1211,7 +1250,301 @@
       <div class="menu-item reveal" style="transition-delay:0.1s"><div><div class="menu-item-name"><em>Panna Cotta al Limoncello</em></div><div class="menu-item-desc">Crème cuite vanille de Madagascar, coulis de limoncello, fraises et menthe fraîche</div></div><div class="menu-item-price">8 €</div></div>
       <div class="menu-item reveal" style="transition-delay:0.15s"><div><div class="menu-item-name"><em>Cannoli Siciliani</em></div><div class="menu-item-desc">Tubes croustillants frits, ricotta sucrée à la fleur d'oranger, zestes d'orange, pistaches de Bronte</div></div><div class="menu-item-price">8 €</div></div>
       <div class="menu-item reveal" style="transition-delay:0.2s"><div><div class="menu-item-name"><em>Gelato Artigianale</em></div><div class="menu-item-desc">Trois boules au choix : pistacchio di Bronte, stracciatella, cioccolato fondente, fragola di bosco</div></div><div class="menu-item-price">7 €</div></div>
+    </div> -->
+<div id="app" data-current-planet="margherita">
+
+  <!-- NAV 1 : Catégories -->
+  <nav class="category-nav">
+    <button class="cat-btn active" data-category="pizza">🍕 Pizza</button>
+    <button class="cat-btn" data-category="pasta">🍝 Pasta</button>
+    <button class="cat-btn" data-category="boisson">🥤 Boisson</button>
+    <button class="cat-btn" data-category="dessert">🍮 Dessert</button>
+  </nav>
+
+  <!-- NAV 2 : Arc SVG -->
+<nav class="planet-nav">
+  <svg viewBox="0 20 400 400" xmlns="http://www.w3.org/2000/svg">
+    <path id="navPath" d="M10,200 C30,-28 370,-28 390,200" fill="none" />
+    <text>
+      <textPath href="#navPath" startOffset="0" font-size="12">
+      </textPath>
+    </text>
+  </svg>
+</nav>
+
+  <!-- PIZZA -->
+
+  <div class="planet" data-planet="margherita" data-category="pizza" data-active>
+    <div class="planet-title">
+      <h1>Margherita</h1>
+      <p class="planet-description">La classique indémodable, tomate et mozzarella.</p>
+      <h2 class="planet-price">20 Dt</h2>
     </div>
+    <figure class="planet-figure"><img src="./assets/marguerita.png" /></figure>
+  </div>
+
+    <div class="planet" data-planet="quattro-formaggi" data-category="pizza" >
+    <div class="planet-title">
+      <h1>Quattro formaggi</h1>
+      <p class="planet-description">La classique indémodable, tomate et mozzarella.</p>
+      <h2 class="planet-price">20 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/4fromages.png" /></figure>
+  </div>
+
+    <div class="planet" data-planet="quattro-stagioni" data-category="pizza" >
+    <div class="planet-title">
+      <h1>Quattro stagioni</h1>
+      <p class="planet-description">La classique indémodable, tomate et mozzarella.</p>
+      <h2 class="planet-price">20 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/4saison.png" /></figure>
+  </div>
+
+    <div class="planet" data-planet="vionde haché" data-category="pizza" >
+    <div class="planet-title">
+      <h1>vionde haché</h1>
+      <p class="planet-description">La classique indémodable, tomate et mozzarella.</p>
+      <h2 class="planet-price">20 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/vionde haché.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="frutti-di-mare" data-category="pizza" >
+    <div class="planet-title">
+      <h1>Frutti di mare</h1>
+      <p class="planet-description">La classique indémodable, tomate et mozzarella.</p>
+      <h2 class="planet-price">20 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/fruit de mer.png" /></figure>
+  </div>
+  
+
+  <div class="planet" data-planet="pepperoni" data-category="pizza">
+    <div class="planet-title">
+      <h1>Pepperoni</h1>
+      <p class="planet-description">La star américaine, généreuse en charcuterie épicée.</p>
+      <h2 class="planet-price">20 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/PIZZA_PEPERONI.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="burrata" data-category="pizza">
+    <div class="planet-title">
+      <h1>Burrata</h1>
+      <p class="planet-description">Crémeuse et fondante, un pur bonheur.</p>
+      <h2 class="planet-price">22 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/burrata.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="vegetarienne" data-category="pizza">
+    <div class="planet-title">
+      <h1>Végétarienne</h1>
+      <p class="planet-description">Fraîche et colorée, pour les amoureux des légumes.</p>
+      <h2 class="planet-price">19 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/pizza-vegetarienne.640x480-removebg-preview.png" /></figure>
+  </div>
+
+  <!-- PASTA -->
+  <div class="planet" data-planet="carbonara" data-category="pasta" >
+    <div class="planet-title">
+      <h1>Carbonara</h1>
+      <p class="planet-description">Guanciale, pecorino, œuf — la recette romaine authentique.</p>
+      <h2 class="planet-price">18 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/Spaghetti-carbonara.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="lasagna" data-category="pasta">
+    <div class="planet-title">
+      <h1>Lasagna</h1>
+      <p class="planet-description">Linguine, palourdes fraîches, crevettes et bisque maison.</p>
+      <h2 class="planet-price">24 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/lasagna.png" /></figure>
+  </div>
+
+    <div class="planet" data-planet="fetuccini-poulet" data-category="pasta">
+    <div class="planet-title">
+      <h1>Fetuccini poulet</h1>
+      <p class="planet-description">Linguine, palourdes fraîches, crevettes et bisque maison.</p>
+      <h2 class="planet-price">24 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/fetuccini poulet.png" /></figure>
+  </div>
+
+    <div class="planet" data-planet="bolognaise" data-category="pasta">
+    <div class="planet-title">
+      <h1>Bolognaise</h1>
+      <p class="planet-description">Linguine, palourdes fraîches, crevettes et bisque maison.</p>
+      <h2 class="planet-price">24 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/bolognaise.png" /></figure>
+  </div>
+
+    <div class="planet" data-planet="tagliatelles" data-category="pasta">
+    <div class="planet-title">
+      <h1>Tagliatelles</h1>
+      <p class="planet-description">Linguine, palourdes fraîches, crevettes et bisque maison.</p>
+      <h2 class="planet-price">24 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/tagliatelles.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="fruits-de-mer" data-category="pasta">
+    <div class="planet-title">
+      <h1>Frutti di mare</h1>
+      <p class="planet-description">Linguine, palourdes fraîches, crevettes et bisque maison.</p>
+      <h2 class="planet-price">24 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/spaghetti-fruits-de-mer.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="pesto" data-category="pasta">
+    <div class="planet-title">
+      <h1>Pesto</h1>
+      <p class="planet-description">Basilic frais, pignons et parmesan — simplicité italienne.</p>
+      <h2 class="planet-price">17 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/pesto-pasta.png" /></figure>
+  </div>
+
+    <div class="planet" data-planet="burrata" data-category="pasta">
+    <div class="planet-title">
+      <h1>Burrata</h1>
+      <p class="planet-description">Crémeuse et fondante, un pur bonheur.</p>
+      <h2 class="planet-price">22 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/spa burrata.png" /></figure>
+  </div>
+
+    <div class="planet" data-planet="canneloni" data-category="pasta">
+    <div class="planet-title">
+      <h1>Canneloni</h1>
+      <p class="planet-description">Pâtes en forme de tubes, farcies de ricotta et sauce bolognaise.</p>
+      <h2 class="planet-price">19 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/cannelonni.png" /></figure>
+  </div>
+
+  <!-- BOISSON -->
+  <div class="planet" data-planet="limonade" data-category="boisson">
+    <div class="planet-title">
+      <h1>Limonade</h1>
+      <p class="planet-description">Citron pressé, menthe fraîche, eau gazeuse.</p>
+      <h2 class="planet-price">6 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/lemonade.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="jus-orange" data-category="boisson">
+    <div class="planet-title">
+      <h1>Jus d'Orange</h1>
+      <p class="planet-description">Oranges pressées à la minute, pur jus naturel.</p>
+      <h2 class="planet-price">5 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/jus-orange.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="mojito" data-category="boisson">
+    <div class="planet-title">
+      <h1>Mojito</h1>
+        <p class="planet-description">Cocktail rafraîchissant à base de menthe fraîche, citron vert et eau pétillante.</p>
+      <h2 class="planet-price">5 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/mojito-removebg-preview.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="eau" data-category="boisson">
+    <div class="planet-title">
+      <h1>Eau</h1>
+        <p class="planet-description">Eau minérale pure et rafraîchissante, idéale pour accompagner vos repas.</p>
+      <h2 class="planet-price">5 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/Eau-safia-removebg-preview.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="soda" data-category="boisson">
+    <div class="planet-title">
+      <h1>Soda</h1>
+        <p class="planet-description">Boisson gazeuse fraîche, disponible en plusieurs saveurs.</p>
+      <h2 class="planet-price">5 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/Pack-22-Soda-Variety-Pack-8-Multi-Flavors-Soft-Drink-Bundle-Assortments-Cola-Pepsi-Sprite-Mountain-Dew-Dr-Pepper-Sunkist-Canada-Dry-Ginger-Ale-Brisk_bba96e0f-0444-4b2b-8e55-d90edf928e00.cf87606a804ac1.png" /></figure>
+  </div>
+  
+  <!-- DESSERT -->
+  <div class="planet" data-planet="tiramisu" data-category="dessert">
+    <div class="planet-title">
+      <h1>Tiramisù</h1>
+      <p class="planet-description">Mascarpone, espresso, savoiards — recette de la nonna.</p>
+      <h2 class="planet-price">9 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/tiramisu.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="tarte-aux-oranges" data-category="dessert">
+    <div class="planet-title">
+      <h1>Tarte aux oranges</h1>
+      <p class="planet-description">Ricotta sucrée, zestes d'orange, pistaches de Bronte.</p>
+      <h2 class="planet-price">8 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/tarte aux oranges.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="gelato" data-category="dessert">
+    <div class="planet-title">
+      <h1>Gelato</h1>
+      <p class="planet-description">Ricotta sucrée, zestes d'orange, pistaches de Bronte.</p>
+      <h2 class="planet-price">8 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/gelato.png" /></figure>
+  </div>
+  
+  <div class="planet" data-planet="panna-cotta" data-category="dessert">
+    <div class="planet-title">
+      <h1>Panna cotta</h1>
+      <p class="planet-description">Ricotta sucrée, zestes d'orange, pistaches de Bronte.</p>
+      <h2 class="planet-price">8 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/panna cotta.png" /></figure>
+  </div>
+  
+
+  <div class="planet" data-planet="cannoli" data-category="dessert">
+    <div class="planet-title">
+      <h1>Cannoli</h1>
+      <p class="planet-description">Ricotta sucrée, zestes d'orange, pistaches de Bronte.</p>
+      <h2 class="planet-price">8 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/cannoli.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="mousse-chocolat" data-category="dessert">
+    <div class="planet-title">
+      <h1>Mousse aux chocolat</h1>
+        <p class="planet-description">Mousse légère et onctueuse au chocolat noir, fondante en bouche.</p>
+      <h2 class="planet-price">8 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/Mousse-au-chocolat-c-A_Lein-shutterstock-820x1024-removebg-preview.png" /></figure>
+  </div>
+
+  <div class="planet" data-planet="gateaux-chocolat" data-category="dessert">
+    <div class="planet-title">
+      <h1>Gateaux aux chocolat</h1>
+        <p class="planet-description">Gâteau moelleux au chocolat riche et intense, parfait pour les gourmands.</p>
+      <h2 class="planet-price">8 Dt</h2>
+    </div>
+    <figure class="planet-figure"><img src="./assets/Layer-cake-au-chocolat-removebg-preview.png" /></figure>
+  </div>
+
+</div>
+
+<script src='https://unpkg.com/splitting@1.0.6/dist/splitting.min.js'></script>
+<link rel='stylesheet' href='https://unpkg.com/splitting@1.0.6/dist/splitting.css'>
+<script src="./script.js"></script>
   </section>
 
   <!-- FILOSOFIA -->
@@ -1224,7 +1557,7 @@
     <div class="filo-cell reveal" style="transition-delay:0.15s">
       <div class="filo-number">02</div>
       <h3 class="filo-title">Le <em>Savoir-Faire</em></h3>
-      <p class="filo-body">Notre chef Marco Ferretti a appris à faire la pasta à la main à Bologne. Chaque soir, les pâtes sont fraîches, la pâte à pizza fermente 48 heures, les sauces mijotent lentement.</p>
+      <p class="filo-body">Notre chef Daly a appris à faire la pasta à la main à Bologne. Chaque soir, les pâtes sont fraîches, la pâte à pizza fermente 48 heures, les sauces mijotent lentement.</p>
     </div>
     <div class="filo-cell reveal" style="transition-delay:0.30s">
       <div class="filo-number">03</div>
@@ -1468,7 +1801,7 @@
     <div class="footer-top">
       <div>
         <div class="footer-logo-row">
-          <img src="assets/logo.jpg" alt="La Cucina" class="footer-logo-img" onerror="this.style.display='none'">
+          <img src="assets/logoBlanc-01.png" alt="La Cucina" class="footer-logo-img" onerror="this.style.display='none'">
           <div class="footer-brand-name">La <em>Cucina</em></div>
         </div>
         <p class="footer-tagline">Où chaque plat raconte une histoire. Une cuisine italienne authentique, préparée chaque jour avec passion et tradition.</p>
